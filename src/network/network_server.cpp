@@ -2223,7 +2223,9 @@ void NetworkLoadPassword( void )
 	{
 			DEBUG( net, 0, "Loading password from %s", password_file_name );
 			for( CompanyID l_company = (CompanyID)0; l_company < MAX_COMPANIES; l_company++ ) {
-					fgets( password, sizeof( password ), file_pointer);
+					if (fgets( password, sizeof( password ), file_pointer) == NULL) {
+						password[0] = 0;
+					}
 					if (strlen(password)>1) {
 							strecpy(_network_company_states[l_company].password, password, lastof(_network_company_states[l_company].password));
 							NetworkServerUpdateCompanyPassworded(l_company, !StrEmpty(_network_company_states[l_company].password));

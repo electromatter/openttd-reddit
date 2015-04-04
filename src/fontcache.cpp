@@ -529,8 +529,8 @@ const Sprite *FreeTypeFontCache::GetGlyph(GlyphID key)
 	aa = (slot->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
 
 	/* Add 1 pixel for the shadow on the medium font. Our sprite must be at least 1x1 pixel */
-	int width  = max(1, slot->bitmap.width + (this->fs == FS_NORMAL));
-	int height = max(1, slot->bitmap.rows  + (this->fs == FS_NORMAL));
+	int width  = max<int>(1, slot->bitmap.width + (this->fs == FS_NORMAL));
+	int height = max<int>(1, slot->bitmap.rows  + (this->fs == FS_NORMAL));
 
 	/* Limit glyph size to prevent overflows later on. */
 	if (width > 256 || height > 256) usererror("Font glyph is too large");
@@ -546,8 +546,8 @@ const Sprite *FreeTypeFontCache::GetGlyph(GlyphID key)
 
 	/* Draw shadow for medium size */
 	if (this->fs == FS_NORMAL && !aa) {
-		for (int y = 0; y < slot->bitmap.rows; y++) {
-			for (int x = 0; x < slot->bitmap.width; x++) {
+		for (unsigned int y = 0; y < slot->bitmap.rows; y++) {
+			for (unsigned int x = 0; x < slot->bitmap.width; x++) {
 				if (aa ? (slot->bitmap.buffer[x + y * slot->bitmap.pitch] > 0) : HasBit(slot->bitmap.buffer[(x / 8) + y * slot->bitmap.pitch], 7 - (x % 8))) {
 					sprite.data[1 + x + (1 + y) * sprite.width].m = SHADOW_COLOUR;
 					sprite.data[1 + x + (1 + y) * sprite.width].a = aa ? slot->bitmap.buffer[x + y * slot->bitmap.pitch] : 0xFF;
@@ -556,8 +556,8 @@ const Sprite *FreeTypeFontCache::GetGlyph(GlyphID key)
 		}
 	}
 
-	for (int y = 0; y < slot->bitmap.rows; y++) {
-		for (int x = 0; x < slot->bitmap.width; x++) {
+	for (unsigned int y = 0; y < slot->bitmap.rows; y++) {
+		for (unsigned int x = 0; x < slot->bitmap.width; x++) {
 			if (aa ? (slot->bitmap.buffer[x + y * slot->bitmap.pitch] > 0) : HasBit(slot->bitmap.buffer[(x / 8) + y * slot->bitmap.pitch], 7 - (x % 8))) {
 				sprite.data[x + y * sprite.width].m = FACE_COLOUR;
 				sprite.data[x + y * sprite.width].a = aa ? slot->bitmap.buffer[x + y * slot->bitmap.pitch] : 0xFF;
