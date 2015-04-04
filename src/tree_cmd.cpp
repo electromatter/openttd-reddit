@@ -470,6 +470,8 @@ static void DrawTile_Trees(TileInfo *ti)
 		default: DrawGroundSprite(_clear_land_sprites_snow_desert[GetTreeDensity(ti->tile)] + SlopeToSpriteOffset(ti->tileh), PAL_NONE); break;
 	}
 
+	DrawOverlay(ti, MP_TREES);
+
 	/* Do not draw trees when the invisible trees setting is set */
 	if (IsInvisibilitySet(TO_TREES)) return;
 
@@ -657,7 +659,14 @@ static void TileLoop_Trees(TileIndex tile)
 		}
 	}
 	if (GetTreeCounter(tile) < 15) {
-		AddTreeCounter(tile, 1);
+		if (_settings_game.construction.tree_growth_rate > 0) {
+			/* Nature randomness */
+			uint8 grow_slowing_values[3] = { 5, 20, 120 }; // slow, very slow, extremely slow
+			uint16 prob = 0x10000 / grow_slowing_values[_settings_game.construction.tree_growth_rate - 1];
+			if (GB(Random(), 0, 16) < prob) AddTreeCounter(tile, 1);
+		} else {
+			AddTreeCounter(tile, 1);
+		}
 		return;
 	}
 	SetTreeCounter(tile, 0);

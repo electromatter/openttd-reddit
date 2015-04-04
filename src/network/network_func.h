@@ -90,5 +90,7 @@ void NetworkChatMessageLoop();
 
 void NetworkAfterNewGRFScan();
 
+void NetworkLoadPassword();
+
 #endif /* ENABLE_NETWORK */
 #endif /* NETWORK_FUNC_H */

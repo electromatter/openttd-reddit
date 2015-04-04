@@ -23,6 +23,7 @@
 #include "../command_func.h"
 #include "../saveload/saveload.h"
 #include "../saveload/saveload_filter.h"
+#include "../fileio_func.h"
 #include "../station_base.h"
 #include "../genworld.h"
 #include "../company_func.h"
@@ -37,6 +38,7 @@
 
 
 /* This file handles all the server-commands */
+void NetworkSavePassword( void );
 
 DECLARE_POSTFIX_INCREMENT(ClientID)
 /** The identifier counter for new clients (is never decreased) */
@@ -1782,6 +1784,9 @@ void NetworkServerSetCompanyPassword(CompanyID company_id, const char *password,
 
 	strecpy(_network_company_states[company_id].password, password, lastof(_network_company_states[company_id].password));
 	NetworkServerUpdateCompanyPassworded(company_id, !StrEmpty(_network_company_states[company_id].password));
+    if ( _settings_client.network.save_password ) {
+		NetworkSavePassword( );
+	}
 }
 
 /**
@@ -2203,6 +2208,50 @@ void NetworkServerNewCompany(const Company *c, NetworkClientInfo *ci)
 		   We need to send Admin port update here so that they first know about the new company
 		   and then learn about a possibly joining client (see FS#6025) */
 		NetworkServerSendChat(NETWORK_ACTION_COMPANY_NEW, DESTTYPE_BROADCAST, 0, "", ci->client_id, c->index + 1);
+	}
+}
+
+void NetworkLoadPassword( void )
+{
+	static FILE *file_pointer;
+	char password[NETWORK_PASSWORD_LENGTH];
+	char password_file_name[80];
+
+	seprintf( password_file_name, lastof(password_file_name), "%u.pwd", _settings_game.game_creation.generation_seed );
+	file_pointer = FioFOpenFile( password_file_name, "rb", SAVE_DIR );
+	if (file_pointer != NULL)
+	{
+			DEBUG( net, 0, "Loading password from %s", password_file_name );
+			for( CompanyID l_company = (CompanyID)0; l_company < MAX_COMPANIES; l_company++ ) {
+					fgets( password, sizeof( password ), file_pointer);
+					if (strlen(password)>1) {
+							strecpy(_network_company_states[l_company].password, password, lastof(_network_company_states[l_company].password));
+							NetworkServerUpdateCompanyPassworded(l_company, !StrEmpty(_network_company_states[l_company].password));
+							fseek( file_pointer, 1L, SEEK_CUR ); // seek past the newline
+					}
+			}
+	} else {
+			DEBUG( net, 0, "Password file %s not found", password_file_name );
+	}
+}
+
+void NetworkSavePassword( void )
+{
+	static FILE *file_pointer;
+	char password_file_name[80];
+
+	seprintf( password_file_name, lastof(password_file_name),"%u.pwd", _settings_game.game_creation.generation_seed );
+	DEBUG( net, 0, "Saving companies password to %s", password_file_name );
+	file_pointer = FioFOpenFile( password_file_name, "wb", SAVE_DIR );
+
+	if (file_pointer != NULL) {
+			for( CompanyID l_company = (CompanyID)0; l_company < MAX_COMPANIES; l_company++ ) {
+					if (NetworkCompanyIsPassworded(l_company)) {
+							fwrite( _network_company_states[l_company].password, strlen(_network_company_states[l_company].password), 1, file_pointer);
+					}
+					fwrite( "\n", 1, 1, file_pointer );
+			}
+			fclose(file_pointer);
 	}
 }
 

@@ -266,6 +266,7 @@ struct NetworkSettings {
 	char   last_host[NETWORK_HOSTNAME_LENGTH];            ///< IP address of the last joined server
 	uint16 last_port;                                     ///< port of the last joined server
 	bool   no_http_content_downloads;                     ///< do not do content downloads over HTTP
+	bool   save_password;                                 ///< allow server to save hashed company password in gameseed.pwd file
 #else /* ENABLE_NETWORK */
 #endif
 };
@@ -308,6 +309,7 @@ struct ConstructionSettings {
 	uint8  industry_platform;                ///< the amount of flat land around an industry
 	bool   freeform_edges;                   ///< allow terraforming the tiles at the map edges
 	uint8  extra_tree_placement;             ///< (dis)allow building extra trees in-game
+	uint8  tree_growth_rate;                 ///< tree growth rate
 	uint8  command_pause_level;              ///< level/amount of commands that can't be executed while paused
 
 	uint32 terraform_per_64k_frames;         ///< how many tile heights may, over a long period, be terraformed per 65536 frames?
@@ -486,6 +488,7 @@ struct EconomySettings {
 	uint16 town_noise_population[3];         ///< population to base decision on noise evaluation (@see town_council_tolerance)
 	bool   allow_town_level_crossings;       ///< towns are allowed to build level crossings
 	bool   infrastructure_maintenance;       ///< enable monthly maintenance fee for owner infrastructure
+    uint8  day_length_factor;                ///< factor which the length of day is multiplied
 };
 
 struct LinkGraphSettings {

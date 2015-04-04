@@ -63,6 +63,7 @@ network/network_server.cpp
 network/network_udp.cpp
 openttd.cpp
 order_backup.cpp
+overlay_cmd.cpp
 pbs.cpp
 progress.cpp
 rail.cpp
@@ -289,6 +290,8 @@ order_backup.h
 order_base.h
 order_func.h
 order_type.h
+overlay.h
+overlay_cmd.h
 pbs.h
 progress.h
 querystring_gui.h
